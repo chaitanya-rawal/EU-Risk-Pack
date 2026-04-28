@@ -1,0 +1,11 @@
+flask>=3.0.0
+yfinance
+pandas
+numpy
+requests
+anthropic
+matplotlib
+weasyprint
+python-dotenv
+scipy
+markdown

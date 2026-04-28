@@ -1,0 +1,150 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>EURO RISK PACK — Daily Monitor</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=IBM+Plex+Mono:wght@400;500;600;700&family=IBM+Plex+Sans:wght@400;500;600;700&display=swap" rel="stylesheet">
+<script src="https://cdnjs.cloudflare.com/ajax/libs/Chart.js/4.4.1/chart.umd.js"></script>
+<link rel="stylesheet" href="{{ url_for('static', filename='dashboard.css') }}">
+</head>
+<body>
+
+<!-- ═══ Section 1: Header Bar ═══ -->
+<div class="header-bar">
+  <div class="container header-inner">
+    <div class="header-left">
+      <span class="header-title">EURO RISK PACK</span>
+      <span class="header-date" id="header-date"></span>
+      <span class="header-subtitle">DAILY MONITOR</span>
+    </div>
+    <div class="header-center">
+      <span class="status-dot fresh" id="status-dot"></span>
+      <span class="header-timestamp" id="header-timestamp">—</span>
+    </div>
+    <div class="header-right">
+      <button class="btn btn-primary" id="btn-mock" onclick="runMock()">▶ RUN MOCK</button>
+      <button class="btn" id="btn-refresh-all" onclick="refreshAll()">⟳ REFRESH ALL</button>
+      <div class="dropdown" id="download-dropdown">
+        <button class="btn" onclick="toggleDropdown()">↓ DOWNLOAD</button>
+        <div class="dropdown-menu">
+          <a class="dropdown-item" href="/api/download/desk-note">PDF Desk Note</a>
+          <a class="dropdown-item" href="/api/download/dashboard">Offline Dashboard</a>
+        </div>
+      </div>
+    </div>
+  </div>
+  <div class="progress-bar-container">
+    <div class="progress-bar" id="progress-bar"></div>
+  </div>
+</div>
+
+<!-- ═══ Section 2: Metric Strip ═══ -->
+<div class="metric-strip">
+  <div class="container">
+    <div class="metric-cards" id="metric-cards"></div>
+  </div>
+</div>
+
+<!-- ═══ Section 3: Chart Row ═══ -->
+<div class="chart-row container">
+  <div class="chart-panel">
+    <div class="chart-panel-header">
+      <div class="chart-panel-title">TTF GAS vs EUA CARBON — 30 DAY</div>
+      <button class="btn" style="font-size:10px;padding:3px 8px;" onclick="refreshCharts()">⟳</button>
+    </div>
+    <div class="chart-legend">
+      <div class="chart-legend-item"><span class="chart-legend-swatch" style="background:#58a6ff"></span> TTF (EUR/MWh)</div>
+      <div class="chart-legend-item"><span class="chart-legend-swatch" style="background:#f0883e"></span> EUA (EUR/tCO₂)</div>
+    </div>
+    <div class="chart-container"><canvas id="chart-ttf-eua"></canvas></div>
+  </div>
+  <div class="chart-panel">
+    <div class="chart-panel-header">
+      <div class="chart-panel-title">DARK SPREAD vs SPARK SPREAD — DE</div>
+      <button class="btn" style="font-size:10px;padding:3px 8px;" onclick="refreshCharts()">⟳</button>
+    </div>
+    <div class="chart-legend">
+      <div class="chart-legend-item"><span class="chart-legend-swatch" style="background:#58a6ff"></span> Dark Spread</div>
+      <div class="chart-legend-item"><span class="chart-legend-swatch" style="background:#3fb950"></span> Spark Spread</div>
+    </div>
+    <div class="chart-container"><canvas id="chart-spreads"></canvas></div>
+  </div>
+</div>
+
+<!-- ═══ Section 4: Storage + Signals ═══ -->
+<div class="storage-signal-row container">
+  <div class="chart-panel">
+    <div class="chart-panel-header">
+      <div class="chart-panel-title">EU GAS STORAGE — FILL LEVEL</div>
+      <button class="btn" style="font-size:10px;padding:3px 8px;" onclick="refreshStorage()">⟳ STORAGE</button>
+    </div>
+    <div class="chart-legend">
+      <div class="chart-legend-item"><span class="chart-legend-swatch" style="background:#3fb950"></span> Current</div>
+      <div class="chart-legend-item"><span class="chart-legend-swatch" style="background:rgba(110,118,129,0.5)"></span> 5yr Avg</div>
+    </div>
+    <div class="chart-container"><canvas id="chart-storage"></canvas></div>
+  </div>
+  <div class="signal-panel">
+    <div class="signal-panel-title">TRADING SIGNALS</div>
+    <div class="signal-pills" id="signal-pills"></div>
+  </div>
+</div>
+
+<!-- ═══ Section 5: AI Desk Note ═══ -->
+<div class="desk-note">
+  <div class="container">
+    <div class="desk-note-panel">
+      <div class="desk-note-header">
+        <div style="display:flex;align-items:center;gap:10px;">
+          <span class="desk-note-title">AI DESK NOTE</span>
+          <span class="desk-note-badge" id="model-badge">claude-sonnet-4-20250514</span>
+        </div>
+        <button class="btn" onclick="streamNarrative()">⟳ REGENERATE</button>
+      </div>
+      <div class="desk-note-sections" id="narrative-sections">
+        <div class="desk-note-section">
+          <div class="desk-note-section-title">GAS TIGHTNESS</div>
+          <div class="desk-note-text" id="narrative-gas"></div>
+        </div>
+        <div class="desk-note-section">
+          <div class="desk-note-section-title">CARBON SIGNAL</div>
+          <div class="desk-note-text" id="narrative-carbon"></div>
+        </div>
+        <div class="desk-note-section">
+          <div class="desk-note-section-title">POWER CURVE IMPLICATION</div>
+          <div class="desk-note-text" id="narrative-power"></div>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>
+
+<!-- ═══ Section 6: Prompt Log ═══ -->
+<div class="prompt-log">
+  <div class="container">
+    <div class="prompt-log-toggle" id="prompt-log-toggle" onclick="togglePromptLog()">▸ PROMPT LOG</div>
+    <div class="prompt-log-content hidden" id="prompt-log-content"></div>
+  </div>
+</div>
+
+<!-- ═══ Section 7: Footer ═══ -->
+<div class="footer-bar">
+  <div class="container footer-inner">
+    <div class="footer-sources">
+      DATA SOURCES: Yahoo Finance · AGSI+ · ENTSO-E · Ember · GIE ALSI<br>
+      <span id="footer-timestamp"></span>
+    </div>
+    <div class="footer-meta" id="footer-meta"></div>
+  </div>
+</div>
+
+<!-- ═══ Data Injection ═══ -->
+<script>
+  window.DASHBOARD_DATA = {{ dashboard_data | safe }};
+</script>
+<script src="{{ url_for('static', filename='dashboard.js') }}"></script>
+</body>
+</html>
