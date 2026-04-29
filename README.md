@@ -5,6 +5,10 @@ A production-grade daily monitoring system for European energy markets that inge
 
 Built from the ground up as a full-stack quantitative trading tool: the backend implements a resilient multi-source data ingestion pipeline with automatic fallback chains (live API → cached CSV → synthetic mock), a metrics engine covering spread analysis, momentum indicators, correlation regimes, and realized volatility, a Chart.js-powered frontend with dark terminal aesthetics matching Bloomberg/Reuters styling, Server-Sent Events for streaming LLM output token-by-token into the browser, and a complete report generation pipeline producing both Markdown and PDF desk notes. The system is designed to never crash — every external dependency (market data APIs, LLM, PDF renderer) has a graceful fallback path, and the entire pipeline can run in demo mode with deterministic seeded synthetic data for evaluation without any API keys.
 
+EU RISK 1.png
+EU RISK.png
+
+Live Video Demo:- https://youtu.be/LQpvjeEMC-8
 ---
 
 ## Quick Start
